@@ -1,14 +1,14 @@
-#include "includes/Start.hpp"
+#include "includes/Server.hpp"
 
 int main(int ac, char **av)
 {
     try
 	{
-		Start ircArgs(ac, av);
-		std::cout << ircArgs << std::endl;
-		// ircServer serv(ircArgs);
-		// serv.config();
-		// serv.run();
+		Start irc(ac, av);
+		std::cout << irc << std::endl;
+		Server serv(irc);
+		serv.config();
+		serv.run();
 	}
 	catch(const std::exception& e)
 	{

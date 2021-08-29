@@ -6,11 +6,13 @@ SRCS =		main.cpp \
 			sources/Start.cpp \
 			sources/Channel.cpp \
 			sources/User.cpp \
+			sources/Server.cpp \
 
 HEADER =	includes/headers.hpp \
 			includes/Start.hpp \
 			includes/Channel.hpp \
 			includes/User.hpp \
+			includes/Server.hpp \
 
 OBJS = $(SRCS:.cpp=.o)
 
