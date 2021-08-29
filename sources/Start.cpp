@@ -9,7 +9,7 @@ Start::Start(int ac, char **av) : _networkPort(0) {
 	std::string tmp (av[i--]);
 	if (_password.empty())
 		throw Start::emptyPasswordException();
-	if ((_port < 0) || (_port > 65535) || (tmp.find_first_not_of("0123456789") != std::string::npos) || (tmp.empty()))
+	if ((_port < 1024) || (_port > 65535) || (tmp.find_first_not_of("0123456789") != std::string::npos) || (tmp.empty()))
 		throw Start::badPortException();
 	if (i) {
 		std::string data(av[i]);
@@ -75,7 +75,7 @@ char const * Start::emptyPasswordException::what( void ) const throw()
 
 char const * Start::badPortException::what( void ) const throw()
 {
-	return "StartException: Port must contain only numbers";
+	return "StartException: Port must contain only numbers, (ports from 1024 to 65535 are reserved)";
 }
 
 char const * Start::badNetworkException::what( void ) const throw()

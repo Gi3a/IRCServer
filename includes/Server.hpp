@@ -15,7 +15,7 @@ private:
 	int		create_tcp_server_socket();
 	struct pollfd _pollfds[MAX_FDS];
 
-	int	_nb_fds;
+	int	_nb_fds; // count clients fd
 
 	std::map<int, User> _userList;
 	std::map<std::string, Channel> _channels;

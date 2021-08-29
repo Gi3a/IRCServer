@@ -3,7 +3,7 @@
 User::~User() {
 }
 
-User::User() : _nickname(std::string("Unknown")), _isRegistered(false){
+User::User() : _nickname(std::string("*")), _isRegistered(false){
 }
 
 User::User(User const & other) {
