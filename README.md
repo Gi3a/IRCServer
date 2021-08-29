@@ -1,6 +1,7 @@
 # IRCServer
 Simple IRC Server on C++
 
+### Commands:
 * /nick [nickname]: set my nickname
 * /create_channel [channel_name]
 * /remove_channel [channel_name]
