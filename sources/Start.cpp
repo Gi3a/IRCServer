@@ -20,7 +20,7 @@ Start::Start(int ac, char **av) : _networkPort(0) {
 		_networkHost = data.substr(0, first);
 		if (_networkHost.empty())
 			throw Start::badNetworkException();
-		_networkPort = atoi(data.substr(first, last - first - 1).c_str());
+		_networkPort = atoi(data.substr(first + 1, last - first).c_str());
 		if (data.substr(first, last - first - 1).empty())
 			throw Start::badNetworkException();
 		_networkPassword = data.substr(last);

@@ -1,6 +1,8 @@
 #include "../includes/Server.hpp"
 
-Server::Server(Start start) : _start(start), _nb_fds(0){ }
+Server::Server(Start start) : _start(start), _nb_fds(0){
+
+}
 
 Server::~Server() {
 	std::map<int, User>::iterator it;
@@ -13,16 +15,10 @@ Server::~Server() {
 	close(_pollfds[0].fd);
 }
 
-// START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER
-// START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER
-// START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER
-// START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER
-// START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER START_SERVER
-
 void	Server::config() {
-	_pollfds[0].fd = Server::create_tcp_server_socket(); // file descriptor
-	_pollfds[0].events = POLLIN; // requested events
-	_pollfds[0].revents = 0; // returned events
+	_pollfds[0].fd = Server::create_tcp_server_socket();
+	_pollfds[0].events = POLLIN;
+	_pollfds[0].revents = 0;
 	_nb_fds = 1;
 }
 
@@ -31,27 +27,27 @@ int		Server::create_tcp_server_socket() {
 	int fd, ret_val;
 
 	/*Create tcp socket*/
-	fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // create fd
+	fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	int opt = 1;
-	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)); // ignor "Address already in use"
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
 	if (fd == -1)
 		throw std::runtime_error("Creating server socket failed\n");
 	std::cout << "Server socked created with fd [" << fd << "]" << std::endl;
-	fcntl(fd, F_SETFL, O_NONBLOCK); // use non-blocking socket
+	fcntl(fd, F_SETFL, O_NONBLOCK);
 
 	/*init socket address structure + bind*/
 	saddr.sin_family = AF_INET;
 	saddr.sin_port = htons(_start.getPort());
 	saddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-	ret_val = bind(fd, (struct sockaddr *)&saddr, sizeof(struct sockaddr_in)); // hearing port...
+	ret_val = bind(fd, (struct sockaddr *)&saddr, sizeof(struct sockaddr_in));
 	if (ret_val != 0) {
 		close(fd);
 		throw std::runtime_error("Binding failed, socket has been closed\n");
 	}
 
 	/*listen for incoming connections*/
-	ret_val = listen(fd, 10); // hearing port...
+	ret_val = listen(fd, 10);
 	if (ret_val != 0) {
 		close(fd);
 		throw std::runtime_error("Listen failed, socket has been closed\n");
@@ -60,8 +56,8 @@ int		Server::create_tcp_server_socket() {
 }
 
 void	Server::run() {
-	socklen_t addrlen = sizeof(struct sockaddr_storage); // len of add
-	struct sockaddr_storage client_saddr; // info about incoming connection
+	socklen_t addrlen = sizeof(struct sockaddr_storage);
+	struct sockaddr_storage client_saddr;
 	int ret_val;
 	char buf[DATA_BUFFER];
 
@@ -116,7 +112,7 @@ void	Server::processRequest(std::string & request, int fd) {
 		&Server::joinCommand,
 		&Server::operCommand,
 		&Server::quitCommand,
-		&Server::privmsgCommand,
+		&Server::msgCommand,
 		&Server::lusersCommand,
 		&Server::helpCommand,
 		&Server::killCommand
@@ -131,15 +127,8 @@ void	Server::processRequest(std::string & request, int fd) {
 	}
 }
 
-// COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS
-// COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS 
-// COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS 
-// COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS 
-// COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS COMMANDS 
-
-
 int	Server::whichCommand(std::string & request) {
-	const char* arr[] = {"PASS","NICK","USER","JOIN","OPER","QUIT","PRIVMSG","LUSERS", "HELP", "KILL"};
+	const char* arr[] = {"PASS","NICK","USER","JOIN","OPER","QUIT","MSG","LUSERS", "HELP", "KILL"};
 	std::istringstream iss(request);
 	std::string firstWord;
 	std::vector<std::string>::iterator it;
@@ -158,12 +147,12 @@ void Server::passCommand(std::string & request, int fd) {
 	std::string str = request.substr(strlen("PASS"));
 
 	if (str.empty()){
-		send_to_fd("461", "PASS :Syntax error - empty", _userList[fd], fd, false);
+		send_to_fd("461", "PASS :Syntax error", _userList[fd], fd, false);
 		return;
 	}
 	str = str.substr(str.find_first_not_of(" "));
 	if (std::count(str.begin(), str.end(), ' ') > 0 && str[0] != ':') {//there is more than one word, not rfc compliant
-		send_to_fd("461", "PASS :Syntnax error - bad arguments", _userList[fd], fd, false);
+		send_to_fd("461", "PASS :Syntnax error", _userList[fd], fd, false);
 		return;
 	}
 	str.erase( std::remove(str.begin(), str.end(), '\n'), str.end() );
@@ -208,7 +197,7 @@ void Server::nickCommand(std::string & request, int fd) {
 	if (_userList[fd].getNickname().compare("*") != 0 && !(_userList[fd].getUsername().empty())) {
 		if (!checkRegistration(fd))
 		{
-			std::string rep("ERROR :Access denied: Bad password?\n");
+			std::string rep("ERROR :Access denied: Bad password? (nick command)\n");
 			send(fd, rep.c_str(), rep.length(), 0);
 			std::cout << rep;
 			close_fd(fd);
@@ -244,7 +233,7 @@ void Server::userCommand(std::string & request, int fd) {
 	if (_userList[fd].getNickname().compare("*") != 0 && !(_userList[fd].getUsername().empty())) {
 		if (!checkRegistration(fd))
 		{
-			std::string rep("ERROR :Access denied: Bad password?\n");
+			std::string rep("ERROR :Access denied: Bad password? (user command)\n");
 			send(fd, rep.c_str(), rep.length(), 0);
 			std::cout << rep;
 			close_fd(fd);
@@ -324,7 +313,7 @@ void Server::operCommand(std::string & request, int fd) {
 		send_to_fd("461", "OPER :Syntax error", _userList[fd], fd, false);
 		return;
 	}
-	if (password.compare(PWD_OPER) == 0 && user.compare(ID_OPER) == 0) {
+	if (password.compare(PWD_OPER) == 0) {
 		_userList[fd].setOperName(user);
 		send_to_fd("381", ":You are now an IRC operator", _userList[fd], fd, false);
 	}
@@ -379,9 +368,9 @@ void Server::quitCommand(std::string & request, int fd) {
 	close_fd(fd);
 }
 
-void Server::privmsgCommand(std::string & request, int fd) {
+void Server::msgCommand(std::string & request, int fd) {
 	if (check_unregistered(fd)) return;
-	std::string str = request.substr(strlen("PRIVMSG"));
+	std::string str = request.substr(strlen("MSG"));
 	std::stringstream 	stream(str);
 	std::string		dests, message, tmp, firstdest;
 	unsigned int	countParams = 0;
@@ -390,7 +379,7 @@ void Server::privmsgCommand(std::string & request, int fd) {
 	while (stream >> tmp) { ++countParams;}
 
 	if (countParams == 0) {
-		send_to_fd("411", ":No recipient given (PRIVMSG)", _userList[fd], fd, false);
+		send_to_fd("411", ":No recipient given (MSG)", _userList[fd], fd, false);
 		return;
 	}
 
@@ -400,7 +389,7 @@ void Server::privmsgCommand(std::string & request, int fd) {
 	}
 
 	if (countParams > 2 && message[0] != ':') {//there is more than one word, : needed
-		send_to_fd("461", "PRIVMSG :Syntnax error", _userList[fd], fd, false);
+		send_to_fd("461", "MSG :Syntnax error", _userList[fd], fd, false);
 		return;
 	}
 	str = str.substr(str.find(dests) + dests.length());
@@ -418,7 +407,7 @@ void Server::privmsgCommand(std::string & request, int fd) {
 			std::vector<int> users = itchan->second.getUsers();
 			for (std::vector<int>::iterator it = users.begin(); it != users.end(); it++) {
 				if ((*it) != fd) {
-					joinMsgChat(_userList[fd], firstdest, (*it), "PRIVMSG", str);
+					joinMsgChat(_userList[fd], firstdest, (*it), "MSG", str);
 				}
 				disp = false;
 			}
@@ -427,7 +416,7 @@ void Server::privmsgCommand(std::string & request, int fd) {
 		{
 			if (it->second.getNickname() == firstdest)
 			{
-				joinMsgChat(_userList[fd], firstdest, it->first, "PRIVMSG", str);
+				joinMsgChat(_userList[fd], firstdest, it->first, "MSG", str);
 				disp = false;
 			}
 		}
@@ -450,8 +439,7 @@ void Server::lusersCommand(std::string & request, int fd) {
 
 void Server::helpCommand(std::string & request, int fd) {
 	(void)request;
-	std::string rep("Hello, need help  ? I will guide you on what to do and what you can do\n\n");
-	rep += "The recommended order of orders for registering a customer is as follows:\n";
+	std::string rep("The recommended order of orders for registering a customer is as follows:\n");
 	rep += "PASS <password>\n";
 	rep += "(The PASS command is used to set the 'login password')\n\n";
 	rep += "NICK <pseudonyme>\n";
@@ -464,8 +452,8 @@ void Server::helpCommand(std::string & request, int fd) {
 	rep += "(The OPER message is used by a normal user to obtain the operator privilege)\n\n";
 	rep += "QUIT [<Quit message>]\n";
 	rep += "(A client session ends with a QUIT message can add a leave message)\n\n";
-	rep += "PRIVMSG <recipient>(1 or more) <:text to send>\n";
-	rep += "(PRIVMSG is used to send a private message between users)\n\n";
+	rep += "MSG <recipient>(1 or more) <:text to send>\n";
+	rep += "(MSG is used to send a private message between users)\n\n";
 	rep += "OPER (OPER command)\n";
 	rep += "OPER is used to have operator privileges\n\n";
 	rep += "KILL <user> <comment>\n";
@@ -505,13 +493,6 @@ void	Server::killCommand(std::string & request, int fd) {
 	}
 }
 
-// METHODS METHODS METHODS METHODS METHODS METHODS METHODS
-// METHODS METHODS METHODS METHODS METHODS METHODS METHODS
-// METHODS METHODS METHODS METHODS METHODS METHODS METHODS
-// METHODS METHODS METHODS METHODS METHODS METHODS METHODS
-// METHODS METHODS METHODS METHODS METHODS METHODS METHODS
-
-
 int	Server::checkPassword(User & user){
 	if (user.getTmpPwd() != _start.getPassword())
 		return false;
@@ -550,6 +531,31 @@ std::string	Server::getNbChannels() const{
 	return ss.str();
 }
 
+void	Server::send_to_fd(std::string code, std::string message,
+User const & user, int fd, bool dispRealName) const {
+	std::string rep(":");
+	rep += SERVER_NAME;
+	rep += " ";
+	rep += code;
+	rep += " ";
+	rep += user.getNickname();
+	rep += " ";
+	rep += message;
+	if (dispRealName){
+		rep += " ";
+		rep += user.getNickname();
+		rep += "!~";
+		rep += user.getUsername();
+		rep += "@localhost(sendto)";
+	}
+	rep += "\n";
+	send(fd, rep.c_str(), rep.length(), 0);
+	if (code.compare("001") != 0 &&	code.compare("251") != 0 &&
+		code.compare("254") != 0 && code.compare("255") != 0)
+	std::cout << rep;
+	return;
+}
+
 void	Server::joinMsgChat(User const & user, std::string channel, int fd, std::string command, std::string message) {
 	std::string rep(":");
 	rep += user.getNickname();
@@ -557,7 +563,7 @@ void	Server::joinMsgChat(User const & user, std::string channel, int fd, std::st
 	rep += user.getUsername();
 	rep += "@localhost ";
 	rep += command;
-	if (command.compare("PRIVMSG") == 0)
+	if (command.compare("MSG") == 0)
 		rep += (std::string(" ") + channel + " " + message);
 	else
 		rep += (" :" + channel);
@@ -578,48 +584,19 @@ int		Server::checkRegistration(int fd) {
 }
 
 int	Server::check_unregistered(int fd){
-	if (_userList[fd].getUsername().empty() || (_userList[fd].getNickname().compare("*") == 0)) {
-		std::string rep(":");
-		rep += SERVER_NAME;
-		rep += " 451 ";
-		rep += _userList[fd].getNickname();
-		rep += " :Connection not registered\n";
-		send(fd, rep.c_str(), rep.length(), 0);
-		std::cout << rep;
-		return 1;
+	// if (_userList[fd].getUsername().empty() || (_userList[fd].getNickname().compare("*") == 0)) {
+	if (_userList[fd].getUsername().empty()) {
+		std::cout << "USER unreg: " << _userList[fd].getUsername() << std::endl;
+		// std::string rep(":");
+		// rep += SERVER_NAME;
+		// rep += " 451 ";
+		// rep += _userList[fd].getNickname();
+		// rep += " :Connection not registered (unregistered)\n";
+		// send(fd, rep.c_str(), rep.length(), 0);
+		// std::cout << rep;
+		// return 1;
 	}
 	return 0;
-}
-
-// FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD
-// FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD
-// FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD
-// FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD
-// FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD FD
-
-void	Server::send_to_fd(std::string code, std::string message,
-User const & user, int fd, bool dispRealName) const {
-	std::string rep(":");
-	rep += SERVER_NAME;
-	rep += " ";
-	rep += code;
-	rep += " ";
-	rep += user.getNickname();
-	rep += " ";
-	rep += message;
-	if (dispRealName){
-		rep += " ";
-		rep += user.getNickname();
-		rep += "!~";
-		rep += user.getUsername();
-		rep += "@localhost";
-	}
-	rep += "\n";
-	send(fd, rep.c_str(), rep.length(), 0);
-	if (code.compare("001") != 0 &&	code.compare("251") != 0 &&
-		code.compare("254") != 0 && code.compare("255") != 0)
-	std::cout << rep;
-	return;
 }
 
 void	Server::close_fd(int fd){

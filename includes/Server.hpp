@@ -51,7 +51,7 @@ public:
 	void 	joinCommand(std::string & request, int fd);
 	void 	operCommand(std::string & request, int fd);
 	void 	quitCommand(std::string & request, int fd);
-	void 	privmsgCommand(std::string & request, int fd);
+	void 	msgCommand(std::string & request, int fd);
 	void 	lusersCommand(std::string & request, int fd);
 	void 	motdCommand(std::string & request, int fd);
 	void	helpCommand(std::string & request, int fd);
