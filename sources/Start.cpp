@@ -1,7 +1,7 @@
 #include "../includes/Start.hpp"
 
 Start::Start(int ac, char **av) : _networkPort(0) {
-	if (ac != 3 || ac != 4)
+	if (ac < 3 || ac > 4)
 		throw Start::badArgumentException();
 	int i = ac - 1;
 	_password = std::string(av[i--]);
@@ -86,7 +86,7 @@ char const * Start::badNetworkException::what( void ) const throw()
 std::ostream & operator<<(std::ostream & o, Start const & s)
 {
 	o << "\n\n\n" << std::endl;
-	o << "Start Info" << std::endl;
+	o << "IRC start... " << std::endl;
 	o << "Port: " << s.getPort() << std::endl;
 	o << "Password: " << s.getPassword() << std::endl;
 	o << "NetworkPort: " << s.getNetworkPort() << std::endl;

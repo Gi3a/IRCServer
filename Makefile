@@ -3,10 +3,14 @@ CC = clang++
 FLAGS = -Wall -Wextra -Werror -std=c++98
 
 SRCS =		main.cpp \
-			# sources/*.cpp \
-			# extras/*.cpp \
+			sources/Start.cpp \
+			sources/Channel.cpp \
+			sources/User.cpp \
 
 HEADER =	includes/headers.hpp \
+			includes/Start.hpp \
+			includes/Channel.hpp \
+			includes/User.hpp \
 
 OBJS = $(SRCS:.cpp=.o)
 

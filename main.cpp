@@ -1,10 +1,18 @@
-#include "includes/include.hpp"
+#include "includes/Start.hpp"
 
 int main(int ac, char **av)
 {
-    if (ac == 4)
-        std::cout << "ircserv is start..." << std::endl;
-    else
-        std::cout << "params: [host:port_network:password_network] <port> <password>" << std::endl;
+    try
+	{
+		Start ircArgs(ac, av);
+		std::cout << ircArgs << std::endl;
+		// ircServer serv(ircArgs);
+		// serv.config();
+		// serv.run();
+	}
+	catch(const std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
     return (0);
 }
