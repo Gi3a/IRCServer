@@ -95,15 +95,15 @@ void Server::nickCommand(std::string & request, int fd) {
 void Server::userCommand(std::string & request, int fd) {
 	std::string req =	request.substr(strlen("USER"));
 	std::stringstream 	info(req);
-	std::string			username, realname, password;
+	std::string			nickname, username, password;
 	unsigned int	countParams = 0;
 
+	info >> nickname;
 	info >> username;
-	info >> realname;
 	info >> password;
-	if (username.empty() || realname.empty() || password.empty())
+	if (nickname.empty() || username.empty() || password.empty())
 	{
-		send_to_fd("461", "USER : Syntax error - use USER <username> <realname> <password>", _userList[fd], fd, false);
+		send_to_fd("461", "USER : Syntax error - use USER <nickname> <username> <password>", _userList[fd], fd, false);
 		return;
 	}
 	else if (_userList[fd].getRegistered())
@@ -113,8 +113,11 @@ void Server::userCommand(std::string & request, int fd) {
 	}
 	else
 	{
+        std::cout << "user: " << nickname << std::endl;
+        std::cout << "real: " << username << std::endl;
+        std::cout << "pass: " << password << std::endl;
+		_userList[fd].setNickname(nickname);
 		_userList[fd].setUsername(username);
-		_userList[fd].setRealname(realname);
 		_userList[fd].setTmpPwd(password);
 		if (!checkRegistration(fd, 0))
 			return;
@@ -323,6 +326,7 @@ void Server::lusersCommand(std::string & request, int fd) {
 	send_to_fd("251", "Users : " + getNbUsers(), _userList[fd], fd, false);
 	send_to_fd("254", "Channels : " + getNbChannels(), _userList[fd], fd, false);
 }
+
 
 void Server::helpCommand(std::string & request, int fd) {
 	(void)request;

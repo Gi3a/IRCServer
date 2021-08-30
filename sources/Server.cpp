@@ -209,7 +209,7 @@ int	Server::checkPassword(User & user){
 }
 
 int		Server::checkRegistration(int fd, int flag) {
-	if (_userList[fd].getNickname().length() < 1 || _userList[fd].getRealName().length() < 1 || _userList[fd].getTmpPwd().length() < 1)
+	if (_userList[fd].getNickname().length() < 1 || _userList[fd].getUsername().length() < 1 || _userList[fd].getTmpPwd().length() < 1)
 	{
 		send_to_fd("481", ":Permission Denied - Need registration. Try USER <username> <realname> <password>", _userList[fd], fd, false);
 		return 0;
