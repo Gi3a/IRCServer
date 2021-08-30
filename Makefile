@@ -7,6 +7,7 @@ SRCS =		main.cpp \
 			sources/Channel.cpp \
 			sources/User.cpp \
 			sources/Server.cpp \
+			sources/Command.cpp \
 
 HEADER =	includes/headers.hpp \
 			includes/Start.hpp \
