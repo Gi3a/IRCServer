@@ -28,4 +28,4 @@ MSG #[channel]
 (The KILL message is used to remove a user from the server)
 
 ### LUSERS
-(The list of users)
+(The info about server)
