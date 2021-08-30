@@ -20,6 +20,7 @@
 #include <algorithm>
 
 #define MAX_FDS 1000
+#define DEBUG 1
 #define DATA_BUFFER 10000
 #define PWD_OPER "root"
 #define SERVER_NAME "ft_irc.com"

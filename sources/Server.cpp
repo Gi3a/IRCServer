@@ -120,11 +120,31 @@ void	Server::processRequest(std::string & request, int fd) {
 		};
 		(this->*ptr[whichCommand(request)]) (request, fd);
 	}
+	else if (DEBUG)
+	{
+		std::string firstdest;
+		firstdest = "";
+		for (std::map<int, User>::iterator it = _userList.begin(); it != _userList.end(); it++) {
+			// if (target == it->second.getNickname()) {
+			// 	std::string rep("ERROR : KILLed by ");
+			// 	rep += _userList[fd].getNickname();
+			// 	rep += ": ";
+			// 	rep += str;
+			// 	rep += "\n";
+			// 	send(it->first, rep.c_str(), rep.length(), 0);
+			// 	close_fd(it->first);
+			// 	return;
+			// }
+			joinMsgChat(_userList[fd], firstdest, it->first, "MSG", cyan + request);
+			// send_to_fd("421", cyan + request, _userList[fd], fd, false);
+			// send_to_fd("421", cyan + request, _userList[fd], fd, false);
+		}
+	}
 	else {
 		std::istringstream iss(request);
 		std::string command;
 		iss >> command;
-		send_to_fd("421", std::string(command) +" :Unknown command, use HELP", _userList[fd], fd, false);
+		send_to_fd("421", reset + std::string(command) +" :Unknown command, use HELP", _userList[fd], fd, false);
 	}
 }
 
@@ -163,14 +183,12 @@ std::string	Server::getNbChannels() const{
 
 void	Server::send_to_fd(std::string code, std::string message,
 User const & user, int fd, bool dispRealName) const {
-	std::string rep(":");
-	rep += SERVER_NAME;
-	rep += " ";
-	rep += code;
-	rep += " ";
+	std::string rep(SERVER_NAME);
+	rep += " : [user: ";
 	rep += user.getNickname();
-	rep += " ";
+	rep += "] ";
 	rep += message;
+	rep += reset;
 	if (dispRealName){
 		rep += " ";
 		rep += user.getNickname();
@@ -178,7 +196,7 @@ User const & user, int fd, bool dispRealName) const {
 		rep += user.getUsername();
 		rep += "@localhost(sendto)";
 	}
-	rep += "\n";
+	rep += "\n---------------------------------------------------------\n";
 	send(fd, rep.c_str(), rep.length(), 0);
 	if (code.compare("001") != 0 &&	code.compare("251") != 0 &&
 		code.compare("254") != 0 && code.compare("255") != 0)
@@ -187,17 +205,14 @@ User const & user, int fd, bool dispRealName) const {
 }
 
 void	Server::joinMsgChat(User const & user, std::string channel, int fd, std::string command, std::string message) {
-	std::string rep(":");
+	std::string rep("[user: ");
 	rep += user.getNickname();
-	rep += "!~";
-	rep += user.getUsername();
-	rep += "@localhost ";
-	rep += command;
+	rep += "] ->";
 	if (command.compare("MSG") == 0)
-		rep += (std::string(" ") + channel + " " + message);
+		rep += (std::string("[") + channel + "]: " + message);
 	else
-		rep += (" :" + channel);
-	rep += "\n";
+		rep += (" " + channel);
+	rep += "\n---------------------------------------------------------\n";
 	send(fd, rep.c_str(), rep.length(), 0);
 	std::cout << rep;
 }
@@ -211,21 +226,19 @@ int	Server::checkPassword(User & user){
 int		Server::checkRegistration(int fd, int flag) {
 	if (_userList[fd].getNickname().length() < 1 || _userList[fd].getUsername().length() < 1 || _userList[fd].getTmpPwd().length() < 1)
 	{
-		send_to_fd("481", ":Permission Denied - Need registration. Try USER <username> <realname> <password>", _userList[fd], fd, false);
+		send_to_fd("481", red + ":Permission Denied - Need registration. Try USER <username> <realname> <password>", _userList[fd], fd, false);
 		return 0;
 	}
 	if (!checkPassword(_userList[fd]))
 	{
-		send_to_fd("481", ":Permission Denied - Bad password. Try again PASS", _userList[fd], fd, false);
+		send_to_fd("481", red + ":Permission Denied - Bad password. Try again PASS", _userList[fd], fd, false);
 		return 0;
 	}
 	if (flag)
 		return 1;
 	_userList[fd].setRegistered(1);
-	std::cout << "User " << _userList[fd].getNickname() << " registered !" << std::endl;
-	send_to_fd("001", ":Welcome to IRCServer!", _userList[fd], fd, false);
-	send_to_fd("251", "Users : " + getNbUsers(), _userList[fd], fd, false);
-	send_to_fd("254", "Channels : " + getNbChannels(), _userList[fd], fd, false);
+	std::cout << green + "User " << _userList[fd].getNickname() << " registered !" << std::endl;
+	send_to_fd("001", green + ":Welcome to IRCServer!\n" + yellow + "Users : " + getNbUsers() + "\n" + yellow + "Channels : " + getNbChannels() + "\n", _userList[fd], fd, false);
 	return 1;
 }
 

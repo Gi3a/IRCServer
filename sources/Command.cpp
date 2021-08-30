@@ -25,13 +25,21 @@ void Server::passCommand(std::string & request, int fd) {
 	info >> password;
 	if (password.empty())
 	{
-		send_to_fd("461", "PASS : Syntax error - use PASS <password>", _userList[fd], fd, false);
+		send_to_fd("461", red + "PASS : Syntax error - use PASS <password>", _userList[fd], fd, false);
 		return;
 	}
 	else if (_userList[fd].getRegistered())
 	{
-		send_to_fd("462", ":You are already registered", _userList[fd], fd, false);
-		return;
+        // for (std::vector<int>::iterator it ;it != users.end(); it++)
+        // std::vector<int> users = itchan->second.getUsers();
+        // for (std::vector<int>::iterator it = users.begin(); it != users.end(); it++) {
+        //     if ((*it) != fd) {
+        //         joinMsgChat(_userList[fd], firstdest, (*it), "MSG", str);
+        //     }
+        //     disp = false;
+        // }
+		// send_to_fd("462", yellow + ":You are already registered", _userList[fd], fd, false);
+		// return;
 	}
 	else
 	{
@@ -41,7 +49,7 @@ void Server::passCommand(std::string & request, int fd) {
 			return;
 		else {
 			std::cout << "PASS saved" << std::endl;
-			send_to_fd("381", ":Password saved", _userList[fd], fd, false);
+			send_to_fd("381", green + ":Password saved", _userList[fd], fd, false);
 		}
 	}
 
@@ -70,12 +78,12 @@ void Server::nickCommand(std::string & request, int fd) {
 		return;
 
 	if (username.empty() || countParams == 2 || (username.length() > 9) || username.find_first_not_of(ALLOWED_CHAR) != std::string::npos){
-		send_to_fd("461", "NICK :Syntax error - NICK <nickname>", _userList[fd], fd, false);
+		send_to_fd("461", red + "NICK :Syntax error - NICK <nickname>", _userList[fd], fd, false);
 		return;
 	}
 	for (std::map<int, User>::iterator it = _userList.begin(); it != _userList.end(); it++)
 		if (it->second.getNickname().compare(username) == 0) { // already same nickname
-			send_to_fd("462", " :Nickname is already in use", it->second, fd, false);
+			send_to_fd("462", yellow + ":Nickname is already in use", it->second, fd, false);
 			return;
 		}
 	if (_userList[fd].getNickname().compare("*") != 0)
@@ -87,7 +95,7 @@ void Server::nickCommand(std::string & request, int fd) {
 		send(fd, rep.c_str(), rep.length(), 0);
 		return ;
 	}
-    send_to_fd("381", " :Nickname saved", _userList[fd], fd, false);
+    send_to_fd("381", green + ":Nickname saved", _userList[fd], fd, false);
 	std::cout << "Nickname saved" << std::endl;
 }
 
@@ -103,12 +111,12 @@ void Server::userCommand(std::string & request, int fd) {
 	info >> password;
 	if (nickname.empty() || username.empty() || password.empty())
 	{
-		send_to_fd("461", "USER : Syntax error - use USER <nickname> <username> <password>", _userList[fd], fd, false);
+		send_to_fd("461", red + "USER : Syntax error - use USER <nickname> <username> <password>", _userList[fd], fd, false);
 		return;
 	}
 	else if (_userList[fd].getRegistered())
 	{
-		send_to_fd("462", ":You are already registered", _userList[fd], fd, false);
+		send_to_fd("462", yellow + ":You are already registered", _userList[fd], fd, false);
 		return;
 	}
 	else
@@ -124,7 +132,7 @@ void Server::userCommand(std::string & request, int fd) {
 		else
 		{
 			std::cout << "User saved" << std::endl;
-			send_to_fd("381", ":User saved", _userList[fd], fd, false);
+			send_to_fd("381", green + ":User saved", _userList[fd], fd, false);
 		}
 	}
 }
@@ -147,7 +155,7 @@ void Server::joinCommand(std::string & request, int fd) {
     
 
 	if (countParams < 1 || countParams > 2) { //BAD SYNTAX
-		send_to_fd("461", "JOIN :Syntax error, JOIN #<channel>",_userList[fd], fd, false);
+		send_to_fd("461", red + "JOIN :Syntax error, JOIN #<channel>",_userList[fd], fd, false);
 	}
 	while (!chans.empty()) { //can have more chan than keys, so we dont care
 		if (chans.find(',')) //more than 1 chan
@@ -200,15 +208,15 @@ void Server::operCommand(std::string & request, int fd) {
 		return;
 
 	if (countParams != 2) {
-		send_to_fd("461", "OPER :Syntax error, OPER <nickname> <password>", _userList[fd], fd, false);
+		send_to_fd("461", red + "OPER :Syntax error, OPER <nickname> <password>", _userList[fd], fd, false);
 		return;
 	}
 	if (password.compare(PWD_OPER) == 0) {
 		_userList[fd].setOperName(user);
-		send_to_fd("381", ":You are now an IRC operator", _userList[fd], fd, false);
+		send_to_fd("381", reset + ":You are now an IRC operator", _userList[fd], fd, false);
 	}
 	else {
-		send_to_fd("464", ":Password incorrect", _userList[fd], fd, false);
+		send_to_fd("464", red + ":Password incorrect", _userList[fd], fd, false);
 	}
 }
 
@@ -223,7 +231,7 @@ void Server::quitCommand(std::string & request, int fd) {
 	else
 		message = str.substr(str.find_first_not_of(" "));
 	if (std::count(message.begin(), message.end(), ' ') > 0 && message[0] != ':') {//there is more than one word, : needed
-		send_to_fd("461", "QUIT :Syntax error, QUIT <message>", _userList[fd], fd, false);
+		send_to_fd("461", red + "QUIT :Syntax error, QUIT <message>", _userList[fd], fd, false);
 		return;
 	}
 	std::map<std::string, Channel >::iterator ite = _channels.end();
@@ -271,17 +279,17 @@ void Server::msgCommand(std::string & request, int fd) {
 		return;
 
 	if (countParams == 0) {
-		send_to_fd("411", ":No recipient given, MSG <nickname> <message>", _userList[fd], fd, false);
+		send_to_fd("411", yellow + ":No recipient given, MSG <nickname> <message>", _userList[fd], fd, false);
 		return;
 	}
 
 	if (countParams == 1) {
-		send_to_fd("412", "No text to send, MSG <nickname> <message>", _userList[fd], fd, false); //only dest, no params
+		send_to_fd("412", yellow + "No text to send, MSG <nickname> <message>", _userList[fd], fd, false); //only dest, no params
 		return;
 	}
 
 	if (countParams > 2 && message[0] != ':') {//there is more than one word, : needed
-		send_to_fd("461", "MSG :Syntnax error, too few arguments to <message>", _userList[fd], fd, false);
+		send_to_fd("461", red + "MSG :Syntnax error, too few arguments to <message>", _userList[fd], fd, false);
 		return;
 	}
 	str = str.substr(str.find(dests) + dests.length());
@@ -313,7 +321,7 @@ void Server::msgCommand(std::string & request, int fd) {
 			}
 		}
 		if (disp)
-			send_to_fd("401", ":No such nick or channel name",_userList[fd],fd,false);
+			send_to_fd("401", red + ":No such nick or channel name",_userList[fd],fd,false);
 		if (dests.find(',') != std::string::npos) //more than 1 chan
 			dests = dests.substr(dests.find(',')+1);
 		else
@@ -323,8 +331,8 @@ void Server::msgCommand(std::string & request, int fd) {
 
 void Server::lusersCommand(std::string & request, int fd) {
 	(void)request;
-	send_to_fd("251", "Users : " + getNbUsers(), _userList[fd], fd, false);
-	send_to_fd("254", "Channels : " + getNbChannels(), _userList[fd], fd, false);
+	send_to_fd("251", reset + "Users : " + getNbUsers(), _userList[fd], fd, false);
+	send_to_fd("254", reset + "Channels : " + getNbChannels(), _userList[fd], fd, false);
 }
 
 
@@ -373,11 +381,11 @@ void	Server::killCommand(std::string & request, int fd) {
 		return;
 
 	if (countParams < 2 || (countParams > 2 && message[0] != ':')) {
-		send_to_fd("461", "KILL :Syntax error, KILL <username> <message>", _userList[fd], fd, false);
+		send_to_fd("461", red + "KILL :Syntax error, KILL <username> <message>", _userList[fd], fd, false);
 		return;
 	}
 	if (_userList[fd].getOperName().empty()) {
-		send_to_fd("481", ":Permission Denied- You're not an IRC operator",_userList[fd],fd,false);
+		send_to_fd("481", red + ":Permission Denied- You're not an IRC operator",_userList[fd],fd,false);
 		return;
 	}
 	for (std::map<int, User>::iterator it = _userList.begin(); it != _userList.end(); it++){
