@@ -34,7 +34,6 @@ public:
 
 	int		whichCommand(std::string & request);
 	int		checkPassword(User & user);
-    int		check_unregistered(int fd);
 	int		checkRegistration(int fd);
 
     void	processRequest(std::string & request, int fd);

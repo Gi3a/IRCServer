@@ -36,6 +36,7 @@ public:
 	std::string const & getUsername() const;
 	std::string const & getRealName() const;
 	std::string const & getNickname() const;
+	bool const & getRegistered() const;
 	std::string & getTmpRequest() ;
 	std::string const & getOperName() const;
 	

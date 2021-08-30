@@ -48,6 +48,9 @@ std::string const & User::getRealName() const {
 std::string const & User::getNickname() const {
     return _nickname;
 }
+bool const & User::getRegistered() const {
+    return _isRegistered;
+}
 
 std::string & User::getTmpPwd()  {
     return _tmpPassword;

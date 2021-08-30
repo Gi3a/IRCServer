@@ -1,7 +1,7 @@
 #include "../includes/Start.hpp"
 
 Start::Start(int ac, char **av) : _networkPort(0) {
-	if (ac < 3 || ac > 4)
+	if (ac <= 3 || ac > 4)
 		throw Start::badArgumentException();
 	int i = ac - 1;
 	_password = std::string(av[i--]);
