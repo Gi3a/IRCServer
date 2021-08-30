@@ -44,12 +44,7 @@ void Server::passCommand(std::string & request, int fd) {
 			send_to_fd("381", ":Password saved", _userList[fd], fd, false);
 		}
 	}
-	// std::string str = request.substr(strlen("PASS"));
 
-	// if (str.empty()){
-	// 	send_to_fd("461", "PASS :Syntax error, PASS <password>", _userList[fd], fd, false);
-	// 	return;
-	// }
 	// str = str.substr(str.find_first_not_of(" "));
 	// if (std::count(str.begin(), str.end(), ' ') > 0 && str[0] != ':') {//there is more than one word, not rfc compliant
 	// 	send_to_fd("461", "PASS :Syntnax error", _userList[fd], fd, false);
@@ -61,9 +56,6 @@ void Server::passCommand(std::string & request, int fd) {
 	// 	send_to_fd("462", ":Connection already registered", _userList[fd], fd, false);
 	// 	return;
 	// }
-	// _userList[fd].setTmpPwd(str);
-	// std::cout << green << "Password saved" << std::endl;
-	// send_to_fd("381", "PASS :Password saved", _userList[fd], fd, false);
 }
 
 void Server::nickCommand(std::string & request, int fd) {
