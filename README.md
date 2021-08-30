@@ -5,7 +5,7 @@ Simple IRC Server on C++
 ### USER <username> <realname> <password>
 (The USER message is used at the start of a connection to specify the user name, real name and password of a new user)
 
-### PASS <password>
+### PASS [password]
 (The PASS command is used to set the 'password of server')
 
 ### NICK <nick>
