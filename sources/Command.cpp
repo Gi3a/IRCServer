@@ -30,16 +30,8 @@ void Server::passCommand(std::string & request, int fd) {
 	}
 	else if (_userList[fd].getRegistered())
 	{
-        // for (std::vector<int>::iterator it ;it != users.end(); it++)
-        // std::vector<int> users = itchan->second.getUsers();
-        // for (std::vector<int>::iterator it = users.begin(); it != users.end(); it++) {
-        //     if ((*it) != fd) {
-        //         joinMsgChat(_userList[fd], firstdest, (*it), "MSG", str);
-        //     }
-        //     disp = false;
-        // }
-		// send_to_fd("462", yellow + ":You are already registered", _userList[fd], fd, false);
-		// return;
+		send_to_fd("462", yellow + ":You are already registered", _userList[fd], fd, false);
+		return;
 	}
 	else
 	{
@@ -183,7 +175,8 @@ void Server::joinCommand(std::string & request, int fd) {
 			if ((firstchan.find_first_of("#") == 0) && (firstchan.find_first_of(" ,\x07") == std::string::npos)) {
 				_channels.insert(std::pair<std::string, Channel>(firstchan, Channel(fd, firstchan, firstkey)));
 				joinMsgChat(_userList[fd], firstchan, fd, "JOIN", std::string(""));
-				std::cout << "Creating new chan : " << blue << firstchan << reset << std::endl;
+				std::cout << "Creating new channel: " << blue << firstchan << reset << std::endl;
+				send_to_fd("200", green + " created new channel: " + firstchan + reset, _userList[fd], fd, false);
 			}
 			else //bad chan name
 				send_to_fd("403", std::string(firstchan)+" :No such channel", _userList[fd], fd, false);

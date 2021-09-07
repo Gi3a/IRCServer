@@ -135,7 +135,8 @@ void	Server::processRequest(std::string & request, int fd) {
 			// 	close_fd(it->first);
 			// 	return;
 			// }
-			joinMsgChat(_userList[fd], firstdest, it->first, "MSG", cyan + request);
+			if (it->first != fd)
+				joinMsgChat(_userList[fd], firstdest, it->first, "MSG", cyan + request);
 			// send_to_fd("421", cyan + request, _userList[fd], fd, false);
 			// send_to_fd("421", cyan + request, _userList[fd], fd, false);
 		}
