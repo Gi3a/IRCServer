@@ -33,7 +33,7 @@ int		Server::create_tcp_server_socket() {
 	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
 	if (fd == -1)
 		throw std::runtime_error("Creating server socket failed\n");
-	std::cout << "Server socked created with fd [" << fd << "]" << std::endl;
+	std::cout << green <<  "Server socked created with fd [" << fd << "]" << reset << std::endl;
 	fcntl(fd, F_SETFL, O_NONBLOCK);
 
 	/*init socket address structure + bind*/
@@ -63,7 +63,7 @@ void	Server::run() {
 	char buf[DATA_BUFFER];
 
 	while (1) {
-		std::cout << red << "\nCurrently listening to " << _nb_fds - 1 << " clients" << reset << std::endl;
+		std::cout << red << "\nNow: " << _nb_fds - 1 << " clients" << reset << std::endl;
 		if (poll(_pollfds, _nb_fds, -1) == -1)
 			throw std::runtime_error("Error during poll\n");
 		for (int fd = 0; fd < (_nb_fds); fd++) {
@@ -136,7 +136,7 @@ void	Server::processRequest(std::string & request, int fd) {
 			// 	return;
 			// }
 			if (it->first != fd)
-				joinMsgChat(_userList[fd], firstdest, it->first, "MSG", cyan + request);
+				joinMsgChat(_userList[fd], firstdest, it->first, "MSG", cyan + request + reset);
 			// send_to_fd("421", cyan + request, _userList[fd], fd, false);
 			// send_to_fd("421", cyan + request, _userList[fd], fd, false);
 		}
@@ -184,7 +184,9 @@ std::string	Server::getNbChannels() const{
 
 void	Server::send_to_fd(std::string code, std::string message,
 User const & user, int fd, bool dispRealName) const {
-	std::string rep(SERVER_NAME);
+	std::string rep(reset);
+	rep += "\n✧";
+	rep += SERVER_NAME;
 	rep += " : [user: ";
 	rep += user.getNickname();
 	rep += "] ";
@@ -197,7 +199,7 @@ User const & user, int fd, bool dispRealName) const {
 		rep += user.getUsername();
 		rep += "@localhost(sendto)";
 	}
-	rep += "\n---------------------------------------------------------\n";
+	rep += "\n\n\n";
 	send(fd, rep.c_str(), rep.length(), 0);
 	if (code.compare("001") != 0 &&	code.compare("251") != 0 &&
 		code.compare("254") != 0 && code.compare("255") != 0)
@@ -206,14 +208,15 @@ User const & user, int fd, bool dispRealName) const {
 }
 
 void	Server::joinMsgChat(User const & user, std::string channel, int fd, std::string command, std::string message) {
-	std::string rep("[user: ");
+	std::string rep(reset);
+	rep += "\n✧[user: ";
 	rep += user.getNickname();
 	rep += "] ->";
 	if (command.compare("MSG") == 0)
 		rep += (std::string("[") + channel + "]: " + message);
 	else
 		rep += (" " + channel);
-	rep += "\n---------------------------------------------------------\n";
+	rep += "\n▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n\n";
 	send(fd, rep.c_str(), rep.length(), 0);
 	std::cout << rep;
 }

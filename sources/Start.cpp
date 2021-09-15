@@ -85,13 +85,15 @@ char const * Start::badNetworkException::what( void ) const throw()
 
 std::ostream & operator<<(std::ostream & o, Start const & s)
 {
-	o << "\n\n\n" << std::endl;
+	o << green;
+	o << "\n======================\n" << std::endl;
 	o << "IRC start... " << std::endl;
 	o << "Port: " << s.getPort() << std::endl;
 	o << "Password: " << s.getPassword() << std::endl;
 	o << "NetworkPort: " << s.getNetworkPort() << std::endl;
 	o << "NetworkHost: " << s.getNetworkHost() << std::endl;
 	o << "NetworkPassword: " << s.getNetworkPassword() << std::endl;
-	o << "\n\n\n" << std::endl;
+	o << "\n======================" << std::endl;
+	o << reset;
 	return o;
 }

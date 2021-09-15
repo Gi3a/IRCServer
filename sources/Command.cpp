@@ -176,7 +176,7 @@ void Server::joinCommand(std::string & request, int fd) {
 				_channels.insert(std::pair<std::string, Channel>(firstchan, Channel(fd, firstchan, firstkey)));
 				joinMsgChat(_userList[fd], firstchan, fd, "JOIN", std::string(""));
 				std::cout << "Creating new channel: " << blue << firstchan << reset << std::endl;
-				send_to_fd("200", green + " created new channel: " + firstchan + reset, _userList[fd], fd, false);
+				send_to_fd("200", green + " created new channel: " + firstchan + "\n▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄\n" + reset, _userList[fd], fd, false);
 			}
 			else //bad chan name
 				send_to_fd("403", std::string(firstchan)+" :No such channel", _userList[fd], fd, false);
@@ -331,33 +331,35 @@ void Server::lusersCommand(std::string & request, int fd) {
 
 void Server::helpCommand(std::string & request, int fd) {
 	(void)request;
-	std::string rep("The recommended order of orders for registering a customer is as follows:\n");
-	rep += "PASS <password>\n";
-	rep += "(The PASS command is used to set the 'password')\n\n";
+	std::string rep("Commands:\n"); 
 
-	rep += "NICK <nickname>\n";
+	rep += "USER [username] [realname] [password]\n";
+	rep += "(The USER message is used at the start of a connection to specify the user name, real name and password of a new user)\n\n";
+
+	rep += "PASS [password]\n";
+	rep += "(The PASS command is used to set the 'password of server')\n\n";
+
+	rep += "NIСK [nick]\n";
 	rep += "(The NICK message is used to give a user a nickname)\n\n";
 
-	rep += "USER <username> . . <real name>\n";
-	rep += "(The USER message is used at the start of a connection to specify the user name, host name, server name, and real name of a new user)\n\n";
+	rep += "MSG [nickname]\n";
+	rep += "MSG #[channel] (The MSG message is used to send message to user or channel)\n\n";
 
-	rep += "JOIN <channel1,channel2>\n";
+	rep += "JОIN #[channel]\n";
 	rep += "(The JOIN command is used by a client to start listening to a specific channel)\n\n";
 
-	rep += "OPER <user> <password>\n";
+	rep += "OPER [user] [password]\n";
 	rep += "(The OPER message is used by a normal user to obtain the operator privilege)\n\n";
 
-	rep += "QUIT <message>\n";
+	rep += "QUIТ [message]\n";
 	rep += "(A client session ends with a QUIT message can add a leave message)\n\n";
 
-	rep += "MSG <recipient>(1 or more) <:text to send>\n";
-	rep += "(MSG is used to send a private message between users)\n\n";
+	rep += "KILL [user] [message]\n";
+	rep += "(The KILL message is used to remove a user from the server)\n\n";
 
-	rep += "OPER <username> <password>\n";
-	rep += "OPER is used to have operator privileges\n\n";
+	rep += "LUSERS\n";
+	rep += "(The info about server)\n\n";
 
-	rep += "KILL <user> <message>\n";
-	rep += "(The KILL command is used to remove a user from the server)\n\n";
 	send(fd, rep.c_str(), rep.length(), 0);
 }
 
