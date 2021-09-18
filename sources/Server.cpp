@@ -1,5 +1,6 @@
 #include "../includes/include.hpp"
 #include "../includes/Server.hpp"
+#include "../includes/Bot.hpp"
 
 Server::Server(Start start) : _start(start), _nb_fds(0){
 
@@ -106,6 +107,7 @@ void	Server::run() {
 }
 
 void	Server::processRequest(std::string & request, int fd) {
+	Bot *bot = new Bot();
 	while(request.size() && isspace(request.front())) request.erase(request.begin()); // removes first spaces
 	while(request.size() && isspace(request.back())) request.pop_back(); //remove last spaces
 	if (whichCommand(request) > -1) {
@@ -126,24 +128,37 @@ void	Server::processRequest(std::string & request, int fd) {
 	else if (DEBUG)
 	{
 		std::string firstdest;
+		std::string response;
+
 		firstdest = "";
-		for (std::map<int, User>::iterator it = _userList.begin(); it != _userList.end(); it++) {
-			// if (target == it->second.getNickname()) {
-			// 	std::string rep("ERROR : KILLed by ");
-			// 	rep += _userList[fd].getNickname();
-			// 	rep += ": ";
-			// 	rep += str;
-			// 	rep += "\n";
-			// 	send(it->first, rep.c_str(), rep.length(), 0);
-			// 	close_fd(it->first);
-			// 	return;
-			// }
-			if (it->first != fd)
-				joinMsgChat(_userList[fd], firstdest, it->first, "MSG", cyan + request + reset);
-			// send_to_fd("421", cyan + request, _userList[fd], fd, false);
-			// send_to_fd("421", cyan + request, _userList[fd], fd, false);
+		std::cout << request << std::cout;
+		if (request.find("bot1"))
+		{
+			std::cout << "BOOT" << std::endl;
+			bot->botResponse(request, response);
+			send_to_fd("421", reset + response, _userList[fd], fd, false);
 		}
-		std::cout << request << reset << std::endl;
+		else
+		{
+			std::cout << "NOT BOOT" << std::endl;
+			for (std::map<int, User>::iterator it = _userList.begin(); it != _userList.end(); it++) {
+				// if (target == it->second.getNickname()) {
+				// 	std::string rep("ERROR : KILLed by ");
+				// 	rep += _userList[fd].getNickname();
+				// 	rep += ": ";
+				// 	rep += str;
+				// 	rep += "\n";
+				// 	send(it->first, rep.c_str(), rep.length(), 0);
+				// 	close_fd(it->first);
+				// 	return;
+				// }
+				if (it->first != fd)
+					joinMsgChat(_userList[fd], firstdest, it->first, "MSG", cyan + request + reset);
+				// send_to_fd("421", cyan + request, _userList[fd], fd, false);
+				// send_to_fd("421", cyan + request, _userList[fd], fd, false);
+			}
+		}
+		std::cout << "[" << fd << "] -> " <<  request << reset << std::endl;
 	}
 	else {
 		std::istringstream iss(request);

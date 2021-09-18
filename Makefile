@@ -8,12 +8,17 @@ SRCS =		main.cpp \
 			sources/User.cpp \
 			sources/Server.cpp \
 			sources/Command.cpp \
+			sources/Bot.cpp
+
+# SRCS_BOT =	
+
 
 HEADER =	includes/headers.hpp \
 			includes/Start.hpp \
 			includes/Channel.hpp \
 			includes/User.hpp \
 			includes/Server.hpp \
+			includes/Bot.hpp
 
 OBJS = $(SRCS:.cpp=.o)
 
