@@ -39,7 +39,10 @@ int		Server::create_tcp_server_socket() {
 	/*init socket address structure + bind*/
 	saddr.sin_family = AF_INET;
 	saddr.sin_port = htons(_start.getPort());
-	saddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	if (!(_start.getNetworkHost().empty()))
+		saddr.sin_addr.s_addr = inet_addr(_start.getNetworkHost().c_str());
+	else
+		saddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	ret_val = bind(fd, (struct sockaddr *)&saddr, sizeof(struct sockaddr_in));
 	if (ret_val != 0) {
@@ -140,6 +143,7 @@ void	Server::processRequest(std::string & request, int fd) {
 			// send_to_fd("421", cyan + request, _userList[fd], fd, false);
 			// send_to_fd("421", cyan + request, _userList[fd], fd, false);
 		}
+		std::cout << request << reset << std::endl;
 	}
 	else {
 		std::istringstream iss(request);
