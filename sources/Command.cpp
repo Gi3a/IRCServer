@@ -363,6 +363,9 @@ void Server::helpCommand(std::string & request, int fd) {
 	rep += "UPLOAD [path_to_file]\n";
 	rep += "(Uploading a file to the server)\n\n";
 
+	rep += "bot [hi || say]\n";
+	rep += "(Generating message from bot)\n\n";
+
 	send(fd, rep.c_str(), rep.length(), 0);
 }
 

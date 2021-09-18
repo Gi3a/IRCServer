@@ -133,32 +133,25 @@ void	Server::processRequest(std::string & request, int fd) {
 		std::string response;
 
 		firstdest = "";
-		std::cout << request << std::cout;
+
 		if (request.find("bot1"))
 		{
-			std::cout << "BOOT" << std::endl;
 			bot->botResponse(request, response);
 			send_to_fd("421", reset + response, _userList[fd], fd, false);
 		}
-		else
-		{
-			std::cout << "NOT BOOT" << std::endl;
-			for (std::map<int, User>::iterator it = _userList.begin(); it != _userList.end(); it++) {
-				// if (target == it->second.getNickname()) {
-				// 	std::string rep("ERROR : KILLed by ");
-				// 	rep += _userList[fd].getNickname();
-				// 	rep += ": ";
-				// 	rep += str;
-				// 	rep += "\n";
-				// 	send(it->first, rep.c_str(), rep.length(), 0);
-				// 	close_fd(it->first);
-				// 	return;
-				// }
-				if (it->first != fd)
-					joinMsgChat(_userList[fd], firstdest, it->first, "MSG", cyan + request + reset);
-				// send_to_fd("421", cyan + request, _userList[fd], fd, false);
-				// send_to_fd("421", cyan + request, _userList[fd], fd, false);
-			}
+		for (std::map<int, User>::iterator it = _userList.begin(); it != _userList.end(); it++) {
+			// if (target == it->second.getNickname()) {
+			// 	std::string rep("ERROR : KILLed by ");
+			// 	rep += _userList[fd].getNickname();
+			// 	rep += ": ";
+			// 	rep += str;
+			// 	rep += "\n";
+			// 	send(it->first, rep.c_str(), rep.length(), 0);
+			// 	close_fd(it->first);
+			// 	return;
+			// }
+			if (it->first != fd)
+				joinMsgChat(_userList[fd], firstdest, it->first, "MSG", cyan + request + reset);
 		}
 		std::cout << "[" << fd << "] -> " <<  request << reset << std::endl;
 	}
