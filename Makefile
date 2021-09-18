@@ -10,7 +10,6 @@ SRCS =		main.cpp \
 			sources/Command.cpp \
 			sources/Bot.cpp
 
-# SRCS_BOT =	
 
 
 HEADER =	includes/headers.hpp \

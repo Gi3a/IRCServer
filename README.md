@@ -29,3 +29,9 @@ MSG #[channel]
 
 ### LUSERS
 (The info about server)
+
+### UPLOAD [path_to_file]
+(Uploading a file to the server)
+
+### bot [hi || say]
+(Generating message from bot)
