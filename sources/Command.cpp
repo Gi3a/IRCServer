@@ -2,7 +2,7 @@
 #include "../includes/Server.hpp"
 
 int	Server::whichCommand(std::string & request) {
-	const char* arr[] = {"PASS","NICK","USER","JOIN","OPER","QUIT","MSG","LUSERS", "HELP", "KILL"};
+	const char* arr[] = {"PASS","NICK","USER","JOIN","OPER","QUIT","MSG","LUSERS", "HELP", "KILL", "UPLOAD", "DOWNLOAD"};
 	std::istringstream iss(request);
 	std::string firstWord;
 	std::vector<std::string>::iterator it;
@@ -360,7 +360,81 @@ void Server::helpCommand(std::string & request, int fd) {
 	rep += "LUSERS\n";
 	rep += "(The info about server)\n\n";
 
+	rep += "UPLOAD [path_to_file]\n";
+	rep += "(Uploading a file to the server)\n\n";
+
 	send(fd, rep.c_str(), rep.length(), 0);
+}
+
+
+void	Server::uploadCommand(std::string & request, int fd)  {
+	std::string str = request.substr(strlen("UPLOAD"));
+	std::stringstream 	stream(str);
+	std::string		filename, tmp;
+	unsigned int	countParams = 0;
+
+	if (stream >> filename) {++countParams;}
+	while (stream >> tmp) {++countParams;}
+	if (filename.empty() || countParams != 1)
+	{
+		send_to_fd("461", "UPLOAD :Syntax error, UPLOAD <path_to_file>", _userList[fd], fd, false);
+		return;		
+	}
+
+	int id = rand()%899+100;
+
+	std::string pathes = "uploads/upload_file_" + std::to_string(id);
+
+	std::ifstream ifs;
+    std::ofstream ofs(pathes);
+	std::string buf;
+
+    ifs.open(filename);
+
+    if (!ifs.is_open())
+		send_to_fd("461", "UPLOAD :can't open file", _userList[fd], fd, false);
+	while(!ifs.eof())
+    {
+        buf = "";
+        getline(ifs, buf);
+        ofs << buf << std::endl;
+    }
+	std::cout << "upload is successful" << "file is: " << pathes << std::endl;
+	send_to_fd("200", "UPLOAD : success, files is: " + pathes, _userList[fd], fd, false);
+}
+
+void	Server::downloadCommand(std::string & request, int fd) {
+	std::string str = request.substr(strlen("DOWNLOAD"));
+	std::stringstream 	stream(str);
+	std::string		filename, tmp;
+	unsigned int	countParams = 0;
+
+	if (stream >> filename) {++countParams;}
+	while (stream >> tmp) {++countParams;}
+	if (filename.empty() || countParams != 1)
+	{
+		send_to_fd("461", "DOWNLOAD :Syntax error, DOWNLOAD <filename>", _userList[fd], fd, false);
+		return;		
+	}
+	const int _size=4096;
+    char _buf[_size];
+
+    FILE* file;
+    file = fopen(filename.c_str(), "rb");
+    int BytesRead = 0;
+    while (!feof(file)) {
+        memset(_buf, 0, _size);
+        BytesRead = fread(_buf, 1, _size, file);
+        if (BytesRead > 0) {
+            send(fd, _buf, BytesRead, 0);
+            std::cout << BytesRead << std::endl;
+            memset(_buf, 0, _size);
+            recv(fd, _buf, _size, 0);
+        }
+    }
+    send(fd, "eof", 3, 0);
+    fclose(file);
+    std::cout << "transmitting successful" << std::endl;
 }
 
 void	Server::killCommand(std::string & request, int fd) {

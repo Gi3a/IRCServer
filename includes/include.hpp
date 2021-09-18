@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <algorithm>
 #include <sstream>
@@ -18,6 +19,12 @@
 #include <map>
 #include <cstring>
 #include <algorithm>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #define MAX_FDS 1000
 #define DEBUG 1

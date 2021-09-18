@@ -55,6 +55,9 @@ public:
 	void 	motdCommand(std::string & request, int fd);
 	void	helpCommand(std::string & request, int fd);
 	void	killCommand(std::string & request, int fd);
+
+	void	uploadCommand(std::string & request, int fd);
+	void	downloadCommand(std::string & request, int fd);
 };
 
 #endif

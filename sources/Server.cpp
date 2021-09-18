@@ -121,7 +121,9 @@ void	Server::processRequest(std::string & request, int fd) {
 		&Server::msgCommand,
 		&Server::lusersCommand,
 		&Server::helpCommand,
-		&Server::killCommand
+		&Server::killCommand,
+		&Server::uploadCommand,
+        &Server::downloadCommand
 		};
 		(this->*ptr[whichCommand(request)]) (request, fd);
 	}
